@@ -12,6 +12,12 @@ INSERT INTO accounts (
 -- name: GetAccount :one
 SELECT * FROM accounts WHERE id = $1 LIMIT 1;
 
+-- name: GetAccountForUpdate :one
+// 由于事务开启后 不会对查询语句加锁 所以需要使用FOR NO KEY UPDATE
+SELECT * FROM accounts
+WHERE id = $1 LIMIT 1
+FOR NO KEY UPDATE;
+
 -- name: ListAccounts :many
 SELECT * FROM accounts ORDER BY id LIMIT $1 OFFSET $2;
 
@@ -19,6 +25,12 @@ SELECT * FROM accounts ORDER BY id LIMIT $1 OFFSET $2;
 UPDATE accounts SET
     balance = $2
 WHERE id = $1
+RETURNING *;
+
+-- name: AddAccountBalance :one
+UPDATE accounts
+SET balance = balance + sqlc.arg(amount)
+WHERE id = sqlc.arg(id)
 RETURNING *;
 
 -- name: DeleteAccount :exec
