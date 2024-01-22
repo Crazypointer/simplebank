@@ -13,7 +13,7 @@ INSERT INTO accounts (
 SELECT * FROM accounts WHERE id = $1 LIMIT 1;
 
 -- name: GetAccountForUpdate :one
-// 由于事务开启后 不会对查询语句加锁 所以需要使用FOR NO KEY UPDATE
+/* 由于事务开启后 不会对查询语句加锁 所以需要使用FOR NO KEY UPDATE */
 SELECT * FROM accounts
 WHERE id = $1 LIMIT 1
 FOR NO KEY UPDATE;

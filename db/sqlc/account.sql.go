@@ -97,6 +97,7 @@ WHERE id = $1 LIMIT 1
 FOR NO KEY UPDATE
 `
 
+// 由于事务开启后 不会对查询语句加锁 所以需要使用FOR NO KEY UPDATE
 func (q *Queries) GetAccountForUpdate(ctx context.Context, id int64) (Account, error) {
 	row := q.queryRow(ctx, q.getAccountForUpdateStmt, getAccountForUpdate, id)
 	var i Account
@@ -125,7 +126,7 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Account
+	items := []Account{}
 	for rows.Next() {
 		var i Account
 		if err := rows.Scan(
