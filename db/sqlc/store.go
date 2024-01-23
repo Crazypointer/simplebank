@@ -64,16 +64,17 @@ type TransferTxParams struct {
 type TransferTxResult struct {
 	// 转账记录
 	Transfer Transfer `json:"transfer"`
-	// 转出账户
+	// 转出账户的详情
 	FromAccount Account `json:"from_account"`
-	// 接收转账的账户
+	// 接收账户的详情
 	ToAccount Account `json:"to_account"`
-	// 转账记录的条数
+	// 转出记录
 	FromEntry Entry `json:"from_entry"`
-	// 接收转账记录的条数
+	// 转入记录
 	ToEntry Entry `json:"to_entry"`
 }
 
+// TransferTx 转账事务
 func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	// 定义一个TransferTxResult结构体
 	var result TransferTxResult
@@ -91,7 +92,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			return err
 		}
 
-		// 执行CreateEntry函数
+		// 创建转账记录
 		result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.FromAccountID,
 			// 转出账户的金额必须为负数
@@ -110,7 +111,8 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			return err
 		}
 
-		// 执行addMoney函数
+		// 为账户添加金额
+		// 如果转出账户的ID小于转入账户的ID，则先为转出账户添加金额，再为转入账户添加金额
 		if arg.FromAccountID < arg.ToAccountID {
 			result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, -arg.Amount, arg.ToAccountID, arg.Amount)
 		} else {
