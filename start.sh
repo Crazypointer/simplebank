@@ -2,8 +2,10 @@
 
 set -e
 
-echo "run db migration"
 source /app/app.env
+echo "查看环境变量中是否有DB_SOURCE"
+echo $DB_SOURCE
+echo "run db migration"
 /app/migrate -path /app/migration -database "$DB_SOURCE" -verbose up
 
 echo "start app"
