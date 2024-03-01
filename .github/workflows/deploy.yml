@@ -17,7 +17,7 @@ jobs:
       - name: Install kubeclt
         uses: azure/setup-kubectl@v3
         with:
-          version: 'v4.0.0' # default is latest stable
+          version: 'v1.29.2' # default is latest stable
         id: install
 
       - name: Configure AWS credentials
@@ -46,6 +46,11 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest . 
           docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+
+        
+      - name: Update kube config
+        run: aws eks --region ap-southeast-2 update-kubeconfig --name simplebank
+
       - name: Deploy to Amazon EKS
         run: |
           kubectl apply -f eks/aws-auth.yaml
